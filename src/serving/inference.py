@@ -60,10 +60,21 @@ except Exception as e:
 # CRITICAL: Load the exact feature column order used during training
 # This ensures the model receives features in the expected order
 try:
+    # First try inside model folder
     feature_file = os.path.join(MODEL_DIR, "feature_columns.txt")
+
+    if not os.path.exists(feature_file):
+        # Fallback: look beside model folder in MLflow artifacts
+        feature_file = os.path.join(
+            os.path.dirname(MODEL_DIR),
+            "feature_columns.txt"
+        )
+
     with open(feature_file) as f:
         FEATURE_COLS = [ln.strip() for ln in f if ln.strip()]
+
     print(f"✅ Loaded {len(FEATURE_COLS)} feature columns from training")
+
 except Exception as e:
     raise Exception(f"Failed to load feature columns: {e}")
 
